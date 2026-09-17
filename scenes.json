@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "id": "pavilion",
+      "name": "雪原孤亭",
+      "subtitle": "极 寒 之 境 · 风 雪 交 加",
+      "scenes": [
+        { "id": "p-spring", "name": "春·雪融", "desc": "冰雪初融,新绿萌发", "file": "assets/pavilion-spring.jpg",
+          "tint": [1.0, 1.02, 0.98], "exposure": 1.05, "storm": 0.35, "moon": false, "weather": "rain", "bolt": [12, 25] },
+        { "id": "p-summer", "name": "夏·碧野", "desc": "晴空万里,绿草如茵", "file": "assets/pavilion-summer.jpg",
+          "tint": [1.0, 1.0, 1.0], "exposure": 1.02, "storm": 0.3, "moon": false, "weather": "none", "bolt": [25, 45] },
+        { "id": "p-autumn", "name": "秋·金原", "desc": "金风萧瑟,落叶纷飞", "file": "assets/pavilion-autumn.jpg",
+          "tint": [1.04, 1.0, 0.94], "exposure": 1.0, "storm": 0.55, "moon": false, "weather": "leaves", "bolt": [18, 35] },
+        { "id": "p-winter", "name": "冬·飞雪", "desc": "漫天飞雪的苍茫雪原", "file": "assets/pavilion-winter.jpg",
+          "tint": [1.0, 1.0, 1.0], "exposure": 1.0, "storm": 0.65, "moon": false, "weather": "snow", "bolt": [7, 19] }
+      ]
+    },
+    {
+      "id": "market",
+      "name": "长安市集",
+      "subtitle": "朱雀大街 · 四季烟火",
+      "scenes": [
+        { "id": "m-spring", "name": "春·花市", "desc": "樱花如雨,春意盎然", "file": "assets/market-spring.jpg",
+          "tint": [1.02, 1.0, 1.0], "exposure": 1.03, "storm": 0.35, "moon": false, "weather": "rain", "bolt": [12, 25] },
+        { "id": "m-summer", "name": "夏·晴市", "desc": "烈日当空,人声鼎沸", "file": "assets/market-summer.jpg",
+          "tint": [1.0, 1.0, 1.0], "exposure": 1.02, "storm": 0.3, "moon": false, "weather": "none", "bolt": [25, 45] },
+        { "id": "m-autumn", "name": "秋·金市", "desc": "银杏鎏金,落叶满街", "file": "assets/market-autumn.jpg",
+          "tint": [1.03, 1.0, 0.95], "exposure": 1.0, "storm": 0.5, "moon": false, "weather": "leaves", "bolt": [18, 35] },
+        { "id": "m-winter", "name": "冬·雪市", "desc": "雪落长街,灯笼映红", "file": "assets/market-winter.jpg",
+          "tint": [1.0, 1.0, 1.02], "exposure": 1.0, "storm": 0.55, "moon": false, "weather": "snow", "bolt": [7, 19] }
+      ]
+    }
+  ]
+}

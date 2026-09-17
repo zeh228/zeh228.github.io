@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#3a4652">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="四季幻境">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<title>雪原孤亭 · 极寒之境</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #9fa9b4; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  .hud {
+    position: fixed; z-index: 10; color: #eef2f6;
+    font-family: "Songti SC", "STSong", "SimSun", serif;
+    text-shadow: 0 1px 8px rgba(20, 28, 38, .55);
+    pointer-events: none; user-select: none;
+  }
+  .title { top: 28px; left: 32px; }
+  .title h1 { font-size: 30px; font-weight: 600; letter-spacing: 10px; }
+  .title p  { margin-top: 8px; font-size: 13px; letter-spacing: 4px; opacity: .75; }
+  .hint {
+    bottom: 22px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; letter-spacing: 3px; opacity: .6;
+    font-family: -apple-system, "PingFang SC", sans-serif;
+  }
+  .switch {
+    position: fixed; z-index: 10; left: 24px; bottom: 22px;
+    font-family: -apple-system, "PingFang SC", sans-serif;
+  }
+  .switch a {
+    color: #eef2f6; font-size: 12px; letter-spacing: 2px; text-decoration: none;
+    padding: 8px 18px; border-radius: 20px;
+    background: rgba(30, 40, 52, .45); border: 1px solid rgba(238,242,246,.35);
+    backdrop-filter: blur(6px); transition: all .2s;
+  }
+  .switch a:hover { background: rgba(30, 40, 52, .7); }
+  .panel {
+    position: fixed; z-index: 10; right: 24px; bottom: 22px;
+    display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+    font-family: -apple-system, "PingFang SC", sans-serif;
+  }
+  .panel button {
+    padding: 8px 18px; font-size: 13px; letter-spacing: 2px; cursor: pointer;
+    color: #eef2f6; background: rgba(30, 40, 52, .45);
+    border: 1px solid rgba(238, 242, 246, .35); border-radius: 20px;
+    backdrop-filter: blur(6px); transition: all .2s;
+  }
+  .panel button:hover { background: rgba(30, 40, 52, .7); }
+  .panel .slider-box {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 20px;
+    background: rgba(30, 40, 52, .45); border: 1px solid rgba(238,242,246,.35);
+    backdrop-filter: blur(6px); color: #eef2f6; font-size: 12px; letter-spacing: 2px;
+  }
+  .panel input[type=range] { width: 110px; accent-color: #cfd8e0; cursor: pointer; }
+
+  #loading {
+    position: fixed; inset: 0; z-index: 99; display: flex;
+    align-items: center; justify-content: center;
+    background: linear-gradient(#6b7683, #9fa9b4);
+    color: #eef2f6; font-family: "Songti SC", serif;
+    font-size: 18px; letter-spacing: 8px; transition: opacity .8s;
+  }
+  #loading.done { opacity: 0; pointer-events: none; }
+
+  #fade {
+    position: fixed; inset: 0; z-index: 50; background: #9fa9b4;
+    opacity: 0; pointer-events: none; transition: opacity .45s;
+  }
+  #fade.on { opacity: 1; }
+
+  .scenes {
+    position: fixed; z-index: 10; top: 28px; right: 24px;
+    display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+    font-family: -apple-system, "PingFang SC", sans-serif;
+  }
+  .scenes .label {
+    color: #eef2f6; font-size: 11px; letter-spacing: 4px; opacity: .65;
+    text-shadow: 0 1px 6px rgba(20,28,38,.5); margin-bottom: 2px;
+  }
+  .group-tabs { display: flex; gap: 6px; margin-bottom: 4px; }
+  .group-tab {
+    padding: 6px 16px; cursor: pointer; user-select: none;
+    color: #eef2f6; font-size: 13px; letter-spacing: 3px;
+    background: rgba(30, 40, 52, .4);
+    border: 1px solid rgba(238, 242, 246, .25); border-radius: 18px;
+    backdrop-filter: blur(6px); transition: all .2s;
+  }
+  .group-tab:hover { background: rgba(30, 40, 52, .65); }
+  .group-tab.active {
+    border-color: rgba(238, 242, 246, .9);
+    background: rgba(30, 40, 52, .75);
+  }
+  .scene-chip {
+    min-width: 118px; padding: 8px 14px; cursor: pointer; text-align: right;
+    color: #eef2f6; background: rgba(30, 40, 52, .4);
+    border: 1px solid rgba(238, 242, 246, .25); border-radius: 10px;
+    backdrop-filter: blur(6px); transition: all .2s; user-select: none;
+  }
+  .scene-chip:hover { background: rgba(30, 40, 52, .65); }
+  .scene-chip.active {
+    border-color: rgba(238, 242, 246, .9);
+    background: rgba(30, 40, 52, .72);
+    box-shadow: 0 2px 14px rgba(20, 28, 38, .35);
+  }
+  .scene-chip .n { font-size: 13px; letter-spacing: 2px; }
+  .scene-chip .d { font-size: 10px; letter-spacing: 1px; opacity: .55; margin-top: 3px; }
+
+  #missing {
+    position: fixed; inset: 0; z-index: 60; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(20, 28, 38, .45); backdrop-filter: blur(4px);
+  }
+  #missing.show { display: flex; }
+  #missing .card {
+    max-width: 520px; margin: 20px; padding: 26px 30px;
+    background: rgba(30, 40, 52, .88); color: #eef2f6;
+    border: 1px solid rgba(238, 242, 246, .3); border-radius: 14px;
+    font-family: -apple-system, "PingFang SC", sans-serif;
+  }
+  #missing h2 { font-size: 17px; letter-spacing: 2px; margin-bottom: 10px; }
+  #missing p { font-size: 13px; line-height: 1.8; opacity: .85; }
+  #missing code {
+    display: block; margin-top: 10px; padding: 12px 14px;
+    background: rgba(0, 0, 0, .35); border-radius: 8px;
+    font-size: 12px; line-height: 1.7; user-select: all; word-break: break-all;
+  }
+  #missing .file { color: #ffd9a0; }
+  #missing button {
+    margin-top: 16px; padding: 7px 20px; font-size: 13px; letter-spacing: 2px;
+    cursor: pointer; color: #eef2f6; background: transparent;
+    border: 1px solid rgba(238, 242, 246, .4); border-radius: 16px;
+  }
+  #missing button:hover { background: rgba(238, 242, 246, .12); }
+</style>
+</head>
+<body>
+<div id="loading">风雪将至 …</div>
+<div id="fade"></div>
+<div id="app"></div>
+
+<div class="scenes" id="scenes">
+  <div class="label">场 景</div>
+  <div class="group-tabs" id="group-tabs"></div>
+  <div id="chips" style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;"></div>
+</div>
+
+<div id="missing">
+  <div class="card">
+    <h2>「<span id="mp-name"></span>」底图未生成</h2>
+    <p>把下面这段提示词发给 GPT / 即梦等绘图模型,将生成的图片保存为 <span class="file" id="mp-file"></span>,刷新页面即可激活该季节:</p>
+    <code id="mp-prompt"></code>
+    <button id="mp-close">知道了</button>
+  </div>
+</div>
+
+<div class="hud title">
+  <h1 id="scene-title">雪原孤亭</h1>
+  <p id="scene-sub">极 寒 之 境 · 风 雪 交 加</p>
+</div>
+<div class="hud hint">拖 拽 环 视 · 滚 轮 变 焦</div>
+
+<div class="switch"><a href="./classic.html">🏯 进入可漫游 3D 版</a></div>
+
+<div class="panel">
+  <div class="slider-box">
+    <span>风暴强度</span>
+    <input id="storm" type="range" min="0.3" max="1.8" step="0.05" value="0.65">
+  </div>
+  <button id="soundBtn">🔇 开启风声</button>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./lib/three.module.js",
+    "three/addons/controls/OrbitControls.js": "./lib/OrbitControls.js"
+  }
+}
+</script>
+<script type="module" src="./pano.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+  }
+</script>
+</body>
+</html>

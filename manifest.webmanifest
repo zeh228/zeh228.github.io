@@ -1,0 +1,17 @@
+{
+  "name": "四季幻境 · 雪原孤亭",
+  "short_name": "四季幻境",
+  "description": "雪原孤亭与长安市集:春夏秋冬四季 360° 全景虚拟空间",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#9fa9b4",
+  "theme_color": "#3a4652",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
