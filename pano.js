@@ -43,7 +43,8 @@ function applyScene(sc) {
     const w = sc.weather || 'snow';
     snow.visible = bokeh.mesh.visible = haze.mesh.visible = (w === 'snow');
     rain.visible = (w === 'rain' || w === 'storm');
-    leaves.visible = (w === 'leaves');
+    leaves.mesh.visible = (w === 'leaves');
+    petals.mesh.visible = (w === 'petals');
     BOLT.min = (sc.bolt && sc.bolt[0]) || 7;
     BOLT.max = (sc.bolt && sc.bolt[1]) || 19;
     STORM.level = sc.storm;
@@ -436,38 +437,72 @@ function makeLeafAtlas() {
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
-const LEAF_COUNT = 380;
-const leafPos = new Float32Array(LEAF_COUNT * 3);
-const leafSpeed = new Float32Array(LEAF_COUNT);
-const leafPhase = new Float32Array(LEAF_COUNT);
-const lSize  = new Float32Array(LEAF_COUNT);
-const lType  = new Float32Array(LEAF_COUNT);
-const lRot   = new Float32Array(LEAF_COUNT * 2);
-const lAlpha = new Float32Array(LEAF_COUNT);
-for (let i = 0; i < LEAF_COUNT; i++) {
-  leafPos[i * 3]     = (Math.random() * 2 - 1) * 40;
-  leafPos[i * 3 + 1] = Math.random() * 25;
-  leafPos[i * 3 + 2] = (Math.random() * 2 - 1) * 40;
-  leafSpeed[i] = 1.2 + Math.random() * 1.6;
-  leafPhase[i] = Math.random() * Math.PI * 2;
-  lSize[i]  = 1.0 + Math.random() * 1.2;
-  lType[i]  = Math.floor(Math.random() * 4);
-  lRot[i * 2]     = (Math.random() - 0.5) * 7;      // 快速翻滚
-  lRot[i * 2 + 1] = Math.random() * Math.PI * 2;
-  lAlpha[i] = 0.85 + Math.random() * 0.15;
+// --- 花瓣贴图集(春·樱花雨) ---
+function makePetalAtlas() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  const cells = [
+    [64, 64, '#f9d3e0', '#e89bb5'],
+    [192, 64, '#fdeef2', '#f0b9cb'],
+    [64, 192, '#f4b8cd', '#dd7f9f'],
+    [192, 192, '#ffe9f0', '#f5c9d8'],
+  ];
+  for (const [cx, cy, c1, c2] of cells) {
+    g.save();
+    g.translate(cx, cy);
+    g.rotate(((cx * cy) % 7) * 0.5 - 1.5);
+    const gr = g.createRadialGradient(0, 0, 2, 0, 0, 34);
+    gr.addColorStop(0, c1);
+    gr.addColorStop(1, c2);
+    g.fillStyle = gr;
+    g.beginPath();
+    g.ellipse(0, 0, 30, 17, 0, 0, Math.PI * 2);
+    g.fill();
+    g.restore();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
-const leafGeo = new THREE.BufferGeometry();
-leafGeo.setAttribute('position', new THREE.BufferAttribute(leafPos, 3));
-leafGeo.setAttribute('aSize',  new THREE.BufferAttribute(lSize, 1));
-leafGeo.setAttribute('aType',  new THREE.BufferAttribute(lType, 1));
-leafGeo.setAttribute('aRot',   new THREE.BufferAttribute(lRot, 2));
-leafGeo.setAttribute('aAlpha', new THREE.BufferAttribute(lAlpha, 1));
-const leaves = new THREE.Points(leafGeo, makeParticleMaterial(makeLeafAtlas(), 1, 1, 1));
-leaves.material.uniforms.uAlpha.value = 1.0;
-leaves.visible = false;
-leaves.frustumCulled = false;
-scene.add(leaves);
-particleMats.push(leaves.material);
+
+// --- 飘舞粒子工厂(落叶 / 花瓣共用) ---
+function makeFlutter(atlas, count, fallScale) {
+  const pos   = new Float32Array(count * 3);
+  const speed = new Float32Array(count);
+  const phase = new Float32Array(count);
+  const size  = new Float32Array(count);
+  const type  = new Float32Array(count);
+  const rot   = new Float32Array(count * 2);
+  const alpha = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    pos[i * 3]     = (Math.random() * 2 - 1) * 40;
+    pos[i * 3 + 1] = Math.random() * 25;
+    pos[i * 3 + 2] = (Math.random() * 2 - 1) * 40;
+    speed[i] = 1.2 + Math.random() * 1.6;
+    phase[i] = Math.random() * Math.PI * 2;
+    size[i]  = 1.0 + Math.random() * 1.2;
+    type[i]  = Math.floor(Math.random() * 4);
+    rot[i * 2]     = (Math.random() - 0.5) * 7;
+    rot[i * 2 + 1] = Math.random() * Math.PI * 2;
+    alpha[i] = 0.85 + Math.random() * 0.15;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('aSize',  new THREE.BufferAttribute(size, 1));
+  geo.setAttribute('aType',  new THREE.BufferAttribute(type, 1));
+  geo.setAttribute('aRot',   new THREE.BufferAttribute(rot, 2));
+  geo.setAttribute('aAlpha', new THREE.BufferAttribute(alpha, 1));
+  const mesh = new THREE.Points(geo, makeParticleMaterial(atlas, 1, 1, 1));
+  mesh.material.uniforms.uAlpha.value = 1.0;
+  mesh.visible = false;
+  mesh.frustumCulled = false;
+  scene.add(mesh);
+  particleMats.push(mesh.material);
+  return { mesh, geo, speed, phase, count, fallScale };
+}
+const leaves = makeFlutter(makeLeafAtlas(), 380, 1.0);   // 秋·落叶
+const petals = makeFlutter(makePetalAtlas(), 320, 0.6);  // 春·花瓣(落得更轻缓)
 
 // --- 风痕流线 ---
 const STREAKS = 200;
@@ -645,21 +680,23 @@ function animate() {
     rain.material.opacity = 0.16 + Math.min(0.3, lv * 0.18);
   }
 
-  // --- 落叶 ---
-  if (leaves.visible) {
-    const lp = leafGeo.attributes.position.array;
-    for (let i = 0; i < LEAF_COUNT; i++) {
+  // --- 落叶 / 花瓣 ---
+  function updateFlutter(F) {
+    const p = F.geo.attributes.position.array;
+    for (let i = 0; i < F.count; i++) {
       const ix = i * 3;
-      lp[ix + 1] -= leafSpeed[i] * (0.8 + lv * 0.4) * dt;
-      lp[ix]     += (windX * 0.35 + Math.sin(t * 1.3 + leafPhase[i]) * 3.5) * dt;
-      lp[ix + 2] += Math.cos(t * 1.1 + leafPhase[i] * 1.7) * 3.0 * dt;
-      if (lp[ix + 1] < -1)  lp[ix + 1] += 26;
-      if (lp[ix] > 40)      lp[ix] -= 80;
-      if (lp[ix + 2] > 40)  lp[ix + 2] -= 80;
-      if (lp[ix + 2] < -40) lp[ix + 2] += 80;
+      p[ix + 1] -= F.speed[i] * (0.8 + lv * 0.4) * F.fallScale * dt;
+      p[ix]     += (windX * 0.35 + Math.sin(t * 1.3 + F.phase[i]) * 3.5) * dt;
+      p[ix + 2] += Math.cos(t * 1.1 + F.phase[i] * 1.7) * 3.0 * dt;
+      if (p[ix + 1] < -1)  p[ix + 1] += 26;
+      if (p[ix] > 40)      p[ix] -= 80;
+      if (p[ix + 2] > 40)  p[ix + 2] -= 80;
+      if (p[ix + 2] < -40) p[ix + 2] += 80;
     }
-    leafGeo.attributes.position.needsUpdate = true;
+    F.geo.attributes.position.needsUpdate = true;
   }
+  if (leaves.mesh.visible) updateFlutter(leaves);
+  if (petals.mesh.visible) updateFlutter(petals);
 
   // 风痕
   const sp = streakGeo.attributes.position.array;

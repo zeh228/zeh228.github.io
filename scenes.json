@@ -17,16 +17,16 @@
     },
     {
       "id": "market",
-      "name": "长安市集",
-      "subtitle": "朱雀大街 · 四季烟火",
+      "name": "长安戏台",
+      "subtitle": "秦 腔 一 吼 · 四 季 轮 转",
       "scenes": [
-        { "id": "m-spring", "name": "春·花市", "desc": "樱花如雨,春意盎然", "file": "assets/market-spring.jpg",
-          "tint": [1.02, 1.0, 1.0], "exposure": 1.03, "storm": 0.35, "moon": false, "weather": "rain", "bolt": [12, 25] },
-        { "id": "m-summer", "name": "夏·晴市", "desc": "烈日当空,人声鼎沸", "file": "assets/market-summer.jpg",
+        { "id": "m-spring", "name": "春·花朝", "desc": "樱花如雨,戏台迎春", "file": "assets/stage-spring.jpg",
+          "tint": [1.02, 1.0, 1.0], "exposure": 1.03, "storm": 0.4, "moon": false, "weather": "petals", "bolt": [15, 30] },
+        { "id": "m-summer", "name": "夏·晴日", "desc": "烈日当空,绿树成荫", "file": "assets/stage-summer.jpg",
           "tint": [1.0, 1.0, 1.0], "exposure": 1.02, "storm": 0.3, "moon": false, "weather": "none", "bolt": [25, 45] },
-        { "id": "m-autumn", "name": "秋·金市", "desc": "银杏鎏金,落叶满街", "file": "assets/market-autumn.jpg",
-          "tint": [1.03, 1.0, 0.95], "exposure": 1.0, "storm": 0.5, "moon": false, "weather": "leaves", "bolt": [18, 35] },
-        { "id": "m-winter", "name": "冬·雪市", "desc": "雪落长街,灯笼映红", "file": "assets/market-winter.jpg",
+        { "id": "m-autumn", "name": "秋·金风", "desc": "银杏鎏金,落叶满台", "file": "assets/stage-autumn.jpg",
+          "tint": [1.03, 1.0, 0.95], "exposure": 1.0, "storm": 0.55, "moon": false, "weather": "leaves", "bolt": [18, 35] },
+        { "id": "m-winter", "name": "冬·雪韵", "desc": "雪落戏台,灯笼映红", "file": "assets/stage-winter.jpg",
           "tint": [1.0, 1.0, 1.02], "exposure": 1.0, "storm": 0.55, "moon": false, "weather": "snow", "bolt": [7, 19] }
       ]
     }
